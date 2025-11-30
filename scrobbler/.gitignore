@@ -1,0 +1,10 @@
+bin/ 
+lib/ 
+CACHEDIR.TAG
+.lock
+__pycache__/
+etc/
+share/
+.ipynb_checkpoints/
+*.odt
+*.pdf

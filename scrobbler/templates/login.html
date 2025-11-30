@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{%block the_body %}
+	<h2>{{ the_title }}</h2>
+
+	<p>Login with your Last.fm credentials:</p>
+
+	Username: <input type="text" name="username"><br>
+	Password: <input type="password" name="password"><br>
+
+	<button hx-post="/login"
+		hx-target="#results"
+		hx-include="[name='username'], [name='password']">
+		Login
+	</button>
+
+	<p>Don't have credentials set up? <a href="/setup">Set them up first</a></p>
+
+	<textarea id="results" readonly rows="5" cols="100">
+	</textarea>
+
+{% endblock %}

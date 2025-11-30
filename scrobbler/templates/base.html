@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<title>{{ the_title }}</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='webapp.css') }}">
+		<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+	</head>
+	<body>
+		<nav>
+		<a href="/">Home</a> |
+		<a href="/setup">Setup</a>
+		</nav>
+
+		<div id="main">
+		{% block the_body %}
+		{% endblock %}
+		</div>
+		<hr>
+		<footer>
+			Copyright 2025 (c) by Mark Lambert, 2025 <br>
+			Software Development | Year 3 | South East Technological University Carlow <br>
+			<a href="mailto:marklambert123@gmail.com">Email</a> |
+			<a href="https://www.linkedin.com/in/mark-lambert-27tw721921/">Linkedin</a> |
+			<a href="https://github.com/lambert-27">Github</a>
+		</footer>
+	</body>
+</html>

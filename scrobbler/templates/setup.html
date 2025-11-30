@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{%block the_body %}
+	<h2>{{ the_title }}</h2>
+
+	{% if credentials %}
+	<p>Current credentials saved for: <strong>{{ credentials[3] }}</strong></p>
+	<p>You can update them below:</p>
+	{% else %}
+	<p>Enter your Last.fm API credentials:</p>
+	{% endif %}
+
+	API Key: <input type="text" name="api_key" value="{{ credentials[1] if credentials else '' }}"><br>
+	API Secret: <input type="text" name="api_secret" value="{{ credentials[2] if credentials else '' }}"><br>
+	Username: <input type="text" name="username" value="{{ credentials[3] if credentials else '' }}"><br>
+	Password: <input type="password" name="password" placeholder="Enter password"><br>
+
+	<button hx-post="/savesetup"
+		hx-target="#results"
+		hx-include="[name='api_key'], [name='api_secret'], [name='username'], [name='password']">
+		{% if credentials %}Update{% else %}Save{% endif %} Credentials
+	</button>
+
+	<p><a href="/">Back to Login</a></p>
+
+	<textarea id="results" readonly rows="5" cols="100">
+	</textarea>
+
+	<div class="instructions">
+		<h3>How to get API credentials:</h3>
+		<ol>
+			<li>Go to <a href="https://www.last.fm/api/account/create" target="_blank">last.fm/api/account/create</a></li>
+			<li>Create an application and copy your API Key & Secret</li>
+			<li>Enter them above along with your Last.fm username and password</li>
+		</ol>
+	</div>
+
+{% endblock %}
