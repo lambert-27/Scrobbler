@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{%block the_body %}
+	<h2>{{ the_title }}</h2>
+
+	<p>Welcome, <strong>{{ username }}</strong>!</p>
+
+	Artist: <input type="text" name="artist"><br>
+	Album: <input type="text" name="album"><br>
+
+	<button hx-post="/scrobble"
+		hx-target="#results"
+		hx-include="[name='artist'], [name='album']">
+		Scrobble Album
+	</button>
+
+	<button hx-post="/logout" hx-target="body">Logout</button>
+
+	<textarea id="results" readonly rows="5" cols="100">
+	</textarea>
+
+{% endblock %}
