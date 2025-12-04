@@ -8,23 +8,6 @@ import platform
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 
-# Database configuration
-if "aws" in platform.uname().release:
-    creds = {
-        "user": "scrobbler",
-        "password": "scrobpasswd",
-        "host": "scrobbler.mysql.pythonanywhere-services.com",
-        "database": "scrobbler$default",
-    }
-else:
-    creds = {
-        "user": "scrobbleruser",
-        "password": "scrobblerpasswd",
-        "host": "localhost",
-        "database": "scrobbler",
-    }
-
-
 def get_credentials_by_username(username):
     """Retrieves credentials for a specific username."""
     SQL = "SELECT * FROM creds WHERE username = %s"
