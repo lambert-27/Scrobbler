@@ -1,58 +1,17 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-import pylast
-import hashlib
-import time
-import DBcm
-import platform
+import secrets
+import bcrypt
+from model import DatabaseModel, LastFMModel
+
+def hash_password(password):
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+def verify_password(password, hashed):
+    return bcrypt.checkpw(password.encode(), hashed.encode())
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'
-
-def get_credentials_by_username(username):
-    """Retrieves credentials for a specific username."""
-    SQL = "SELECT * FROM creds WHERE username = %s"
-    with DBcm.UseDatabase(creds) as db:
-        db.execute(SQL, (username,))
-        result = db.fetchone()
-    return result
-
-def save_credentials(api_key, api_secret, username, password):
-    """Inserts or updates credentials in the 'creds' table."""
-    # Hash the password before storing
-    pass_has = hashlib.md5(password.encode()).hexdigest()
-
-    # Check if username already exists
-    existing = get_credentials_by_username(username)
-
-    if existing:
-        # Update existing credentials
-        SQL = """
-            UPDATE creds
-            SET api_key = %s, api_secret = %s, pass_has = %s
-            WHERE username = %s
-        """
-        with DBcm.UseDatabase(creds) as db:
-            db.execute(SQL, (api_key, api_secret, pass_has, username))
-    else:
-        # Insert new credentials
-        SQL = """
-            INSERT INTO creds (api_key, api_secret, username, pass_has)
-            VALUES (%s, %s, %s, %s)
-        """
-        with DBcm.UseDatabase(creds) as db:
-            db.execute(SQL, (api_key, api_secret, username, pass_has))
-
-def verify_login(username, password):
-    """Verifies username and password against stored credentials."""
-    credentials = get_credentials_by_username(username)
-    if not credentials:
-        return False
-
-    # Hash the provided password and compare with stored hash
-    provided_hash = hashlib.md5(password.encode()).hexdigest()
-    stored_hash = credentials[4]  # pass_has is at index 4
-
-    return provided_hash == stored_hash
+# Start a session for user using secrets module
+app.secret_key =  secrets.token_hex(32)
 
 @app.get("/")
 def opening_page():
@@ -66,17 +25,30 @@ def opening_page():
 def setup_page():
     return render_template("setup.html", the_title="Setup Credentials")
 
-@app.post("/login")
+@app.route("/login", methods=["POST"])
 def login():
     username = request.form["username"]
     password = request.form["password"]
 
-    if verify_login(username, password):
+    if DatabaseModel.verify_login(username, password):
         session['username'] = username
-        return "Login successful! You can now scrobble albums."
+        return redirect(url_for('scrobble_page'))  # Redirect user scrobble instantly!
     else:
-        return "Error: Invalid username or password."
+        return render_template("login.html", 
+                             the_title="Login",
+                             error="Invalid username or password.")
 
+
+#app.get to redirect to scrobble url if logged in
+@app.get("/scrobble")
+def scrobble_page():
+    # Check if user is logged in
+    if 'username' not in session:
+        return redirect(url_for('opening_page'))  # Redirect to login page
+    
+    return render_template("scrobble.html", 
+                          the_title="Scrobble Album", 
+                          username=session['username'])
 @app.post("/logout")
 def logout():
     session.pop('username', None)
@@ -91,7 +63,7 @@ def save_credentials_route():
     password = request.form["password"]
 
     # Save to database
-    save_credentials(api_key, api_secret, username, password)
+    DatabaseModel.save_credentials(api_key, api_secret, username, password)
 
     return "Credentials saved! You can now login to scrobble albums."
 
@@ -104,7 +76,7 @@ def scrobble_album():
     username = session['username']
 
     # Get credentials from database
-    credentials = get_credentials_by_username(username)
+    credentials = DatabaseModel.get_credentials_by_username(username)
     if not credentials:
         return "Error: No credentials found for your account. Please set up credentials first."
 
@@ -116,33 +88,13 @@ def scrobble_album():
     album = request.form["album"]
 
     try:
-        # Use the stored credentials
-        network = pylast.LastFMNetwork(
-            api_key=api_key,
-            api_secret=api_secret,
-            username=username,
-            password_hash=pass_has
-        )
-
-        # Get album and tracks
-        album_obj = network.get_album(artist, album)
-        tracks = album_obj.get_tracks()
-
-        # Scrobble all tracks with timestamps
-        current_time = int(time.time())
-        for i, track in enumerate(tracks):
-            timestamp = current_time - (len(tracks) - i) * 30
-            network.scrobble(
-                artist=artist,
-                title=track.title,
-                album=album,
-                timestamp=timestamp
-            )
-
-        return f"Success! Scrobbled {len(tracks)} tracks from '{album}' by {artist}"
+        lastfm = LastFMModel(api_key, api_secret, username, pass_has)
+        tracks_count = lastfm.scrobble_album(artist, album)
+        
+        return f"Success! Scrobbled {tracks_count} tracks from '{album}' by {artist}"
 
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error: Could not scrobble album. Please check you input the correct Artist/Album"
 
 if __name__ == "__main__":
     app.run(debug=True)
