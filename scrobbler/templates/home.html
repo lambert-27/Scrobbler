@@ -2,30 +2,15 @@
 
 {%block the_body %}
 	<h2>{{ the_title }}</h2>
-	
-	{% if has_credentials %}
-	<p>Enter album details to scrobble:</p>
-	
-	Artist: <input type="text" name="artist"><br>
-	Album: <input type="text" name="album"><br>
-	
-	<button hx-post="/scrobble" 
-		hx-target="#results" 
-		hx-include="[name='artist'], [name='album']">
-		Scrobble Album
-	</button>
-	
 
-	<textarea id="results" readonly rows="5" cols="100">
-	</textarea>
+	<p>Login with your Last.fm credentials:</p>
 
-	<p><a href="/setup">Update Credentials</a> | 
-	   <button hx-post="/clear" hx-target="#results">Clear Credentials</button></p>
-	
-	<br>
-	{% else %}
-	<p>Please <a href="/setup">set up your Last.fm credentials</a> first.</p>
-	{% endif %}
-	
+	<form action="/login" method="POST">
+		Username: <input type="text" name="username"><br>
+		Password: <input type="password" name="password"><br>
+		<input type="submit" value="Login">
+	</form>
+
+	<p>Don't have credentials set up? <a href="/setup">Set them up first</a></p>
 
 {% endblock %}

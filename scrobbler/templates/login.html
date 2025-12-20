@@ -3,20 +3,18 @@
 {%block the_body %}
 	<h2>{{ the_title }}</h2>
 
+	{% if error %}
+	<div style="color: red; margin-bottom: 10px;">{{ error }}</div>
+	{% endif %}
+
 	<p>Login with your Last.fm credentials:</p>
 
-	Username: <input type="text" name="username"><br>
-	Password: <input type="password" name="password"><br>
-
-	<button hx-post="/login"
-		hx-target="#results"
-		hx-include="[name='username'], [name='password']">
-		Login
-	</button>
+	<form action="/login" method="POST">
+		Username: <input type="text" name="username"><br>
+		Password: <input type="password" name="password"><br>
+		<input type="submit" value="Login">
+	</form>
 
 	<p>Don't have credentials set up? <a href="/setup">Set them up first</a></p>
-
-	<textarea id="results" readonly rows="5" cols="100">
-	</textarea>
 
 {% endblock %}

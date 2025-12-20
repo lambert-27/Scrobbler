@@ -61,7 +61,7 @@ input[type="text"], input[type="password"] {
         outline: none;
     }
 
-button {
+button, input[type="submit"] {
     background-color: #1db954;
     color: white;
     padding: 12px 24px;
