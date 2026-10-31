@@ -27,6 +27,13 @@ A web application that allows users to scrobble entire albums to Last.fm with a 
 - MySQL/MariaDB database
 - Last.fm API account
 
+Configure the database connection with these environment variables before starting the app:
+
+- `SCROBBLER_DB_USER`
+- `SCROBBLER_DB_PASSWORD`
+- `SCROBBLER_DB_HOST`
+- `SCROBBLER_DB_NAME`
+
 ### Last.fm API Setup
 
 1. Visit [Last.fm API Applications](https://www.last.fm/api/account/create)

@@ -2,24 +2,16 @@ import hashlib
 import time
 import pylast
 import DBcm
-import platform
+import os
 
 # Database configuration
 def get_db_config():
-    if "aws" in platform.uname().release:
-        return {
-            "user": "scrobbler",
-            "password": "REDACTED",
-            "host": "scrobbler.mysql.pythonanywhere-services.com",
-            "database": "scrobbler$default",
-        }
-    else:
-        return {
-            "user": "scrobbleruser",
-            "password": "REDACTED",
-            "host": "localhost",
-            "database": "scrobbler",
-        }
+    return {
+        "user": os.environ["SCROBBLER_DB_USER"],
+        "password": os.environ["SCROBBLER_DB_PASSWORD"],
+        "host": os.environ["SCROBBLER_DB_HOST"],
+        "database": os.environ["SCROBBLER_DB_NAME"],
+    }
 
 creds = get_db_config()
 
